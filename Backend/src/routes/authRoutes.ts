@@ -44,6 +44,12 @@ router.post("/login", async (req, res):Promise<any>=> {
         return res.status(400).json({ message: result.error });
     }
 
+    res.cookie("token", result.token, {
+        httpOnly: true,  // ✅ Prevents frontend JavaScript access
+        secure: false,   // ❌ Use `true` in production (HTTPS only)
+        sameSite: "lax", // Adjust as needed
+        maxAge: 24 * 60 * 60 * 1000,
+      });
     res.status(200).json({ message: "Login successful", token: result.token, user: result.user });
 });
 
