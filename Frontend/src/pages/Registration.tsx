@@ -34,7 +34,7 @@ const Registration: React.FC = () => {
 
       // Redirect to login page after successful registration
       setTimeout(() => {
-        navigate("/enter-arena"); // Navigate to the login page
+        navigate("/login"); // Navigate to the login page
       }, 1000); // Delay for 2 seconds to show success message
     } catch (err: any) {
       console.error("Registration error:", err);
@@ -117,7 +117,7 @@ const Registration: React.FC = () => {
 
         <Typography sx={styles.loginText}>
           Already have an account?{" "}
-          <Link to="/enter-arena" style={styles.loginLink}>
+          <Link to="/login" style={styles.loginLink}>
             Login
           </Link>
         </Typography>

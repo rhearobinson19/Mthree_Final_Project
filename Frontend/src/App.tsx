@@ -43,7 +43,7 @@ const App: React.FC = () => {
 
             <Slide direction="up" in={showButtons} timeout={1000}>
               <div style={buttonContainerStyle}>
-                <HoverButton to="/enter-arena">ENTER THE ARENA</HoverButton>
+                <HoverButton to="/dashboard">ENTER THE ARENA</HoverButton>
                 <HoverButton to="/leaderboard">LEADERBOARD</HoverButton>
               </div>
             </Slide>

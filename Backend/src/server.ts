@@ -5,8 +5,8 @@ import { Server } from "socket.io";
 import http from "http";
 import authRoutes from "./routes/authRoutes";
 import queueRoutes from "./routes/queueRoutes";
+import dataRoutes from "./routes/dataRoutes";
 import { checkConnection } from "./config/db";
-import getQuestionsByTopicId  from "./controllers/question";
 
 dotenv.config();
 
@@ -17,14 +17,22 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-    origin: "http://localhost:5174", // Allow frontend access
-    credentials: true, // Allow cookies if needed
-}));
+app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true, 
+    }));
 
 // Routes
 app.use("/auth", authRoutes);
 app.use("/queue", queueRoutes);
+app.use("/data",dataRoutes);
 
 // Root Route
 app.get("/", (req, res) => {
@@ -33,10 +41,10 @@ app.get("/", (req, res) => {
 
 // Handle player disconnections
 io.on("connection", (socket) => {
-    console.log(`🔌 Player connected: ${socket.id}`);
+    console.log(`Player connected: ${socket.id}`);
 
     socket.on("disconnect", () => {
-        console.log(`⚡ Player disconnected: ${socket.id}`);
+        console.log(`Player disconnected: ${socket.id}`);
     });
 });
 

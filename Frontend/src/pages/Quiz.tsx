@@ -18,7 +18,7 @@ const Quiz: React.FC = () => {
     const token = Cookies.get("token") || localStorage.getItem("token");
     console.log("Token in Quiz:", token); // Debugging
     if (!token) {
-      navigate("/enter-arena"); // Redirect if no token
+      navigate("/login"); // Redirect if no token
     } else {
       setIsAuthenticated(true);
     }
@@ -60,7 +60,7 @@ const Quiz: React.FC = () => {
   const handleLogout = () => {
     Cookies.remove("token");
     localStorage.removeItem("token");
-    navigate("/enter-arena");
+    navigate("/");
   };
 
   // ✅ Prevent rendering issues by handling "Loading" properly
