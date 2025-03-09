@@ -15,16 +15,8 @@ npx ts-node src/server.ts
 
 <!-- Register TestPoint -->
 {
-    "username": "bhavesh_mayank"
-    "email":"john4@example.com", 
-    "password":"securepassword123"
-}
-
-<!-- Queue -->
-{
-    "Authorization": ""
-}
-
-<!-- Testpoint Socket -->
-Authorization : "jwt-token"
+    "username": "test{1-5}"
+    "email":"test{1-5}@example.com", 
+    "password":"test"
+},
 

@@ -74,11 +74,6 @@ const Rules: React.FC = () => {
                 <span style={iconStyles}>📜</span> Rules
               </Link>
             </li>
-            <li>
-              <Link to="/logout" style={logoutLinkStyles}>
-                <span style={iconStyles}>🚪</span> Logout
-              </Link>
-            </li>
           </ul>
         </nav>
       </div>

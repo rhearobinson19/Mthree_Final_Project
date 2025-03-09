@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation , useNavigate} from "react-router-dom";
 import logo from "../assets/swords.jpg";
 import backgroundImg from "../assets/dashboard.jpg";
-import AppRoutes from "./routes/AppRoutes";
 
 const Dashboard: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
+  // const location = useLocation();
+  const navigate = useNavigate();
   
   // Reset sidebar state when location changes
   useEffect(() => {
@@ -23,9 +23,21 @@ const Dashboard: React.FC = () => {
     setSidebarOpen(!isSidebarOpen);
   };
 
+  const joinQueue = () => {
+    // Check if token exists before navigating to queue
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You need to log in first!");
+      navigate("/login");
+      return;
+    }
+    
+    // Navigate to queue page if authenticated
+    navigate("/queue");
+  };
+
   return (
     <div style={containerStyles}>
-      {/* Use React conditional rendering for overlay instead of DOM manipulation */}
       {isSidebarOpen && <div style={overlayStyles} onClick={() => setSidebarOpen(false)}></div>}
 
       <header style={navbarStyles}>
@@ -34,11 +46,11 @@ const Dashboard: React.FC = () => {
         <h1 style={navbarTitleStyles}>QUIZENA</h1>
       </header>
 
-      {/* Sidebar - use React state to control visibility */}
+      {/* Sidebar */}
       <div style={{ ...sidebarStyles, transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)" }}>
         <div style={sidebarHeaderStyles}>
           <img src={logo} alt="Profile" style={profileImgStyles} />
-          <h3>John Doe</h3>
+          <h3>CONTROLS</h3>
         </div>
         <nav>
           <ul style={navListStyles}>
@@ -80,18 +92,14 @@ const Dashboard: React.FC = () => {
       <div style={mainContentStyles}>
         <div style={contentStyles}>
           <h1 style={titleStyles}>WELCOME TO THE BATTLES OF THE QUIZ LORDS</h1>
-          <Link to="/queue">
-            <button style={buttonStyles}>Start Game</button>
-          </Link>
+            <button style={buttonStyles} onClick={joinQueue}>Start Game</button>
         </div>
       </div>
-      
-      {/* AppRoutes should be rendered once at the App level, not in each component */}
     </div>
   );
 };
 
-/* Styles remain the same */
+/* Styles */
 const containerStyles: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",

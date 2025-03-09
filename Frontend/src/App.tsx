@@ -68,7 +68,7 @@ const App: React.FC = () => {
           <div style={{ ...sidebarStyles, transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)" }}>
             <div style={sidebarHeaderStyles}>
               <img src={swordsLogo} alt="Profile" style={profileImgStyles} />
-              <h3>John Doe</h3>
+              <h3>CONTROLS</h3>
             </div>
             <nav>
               <ul style={navListStyles}>
@@ -95,11 +95,6 @@ const App: React.FC = () => {
                 <li>
                   <Link to="/rules" style={navLinkStyles}>
                     <span style={iconStyles}>📜</span> Rules
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/logout" style={logoutLinkStyles}>
-                    <span style={iconStyles}>🚪</span> Logout
                   </Link>
                 </li>
               </ul>

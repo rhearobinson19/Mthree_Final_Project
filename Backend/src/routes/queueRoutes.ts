@@ -1,20 +1,13 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import authenticateUser from "../config/authMiddleware";
-import { joinQueue } from "../controllers/queue";
-import { io } from "../server"; // Import Socket.IO instance
-import getQuestionsByTopicId from "../controllers/question";
+import { joinQueue , leaveQueue } from "../controllers/queue";
 
 const router = express.Router();
 
 // Player joins the queue
-router.get("/join", authenticateUser, (req, res) => joinQueue(io)(req, res));
+router.get("/join", authenticateUser,joinQueue);
 
-// Get questions by topic ID
-router.get("/topic/:topicId", async (req, res) => {
-    const topicId = req.params.topicId;
-    const result = await getQuestionsByTopicId(topicId);
-    res.json({ message: result});
-});
-
+// Player leaves the queue
+router.get("/leave", authenticateUser, leaveQueue);
 
 export default router;

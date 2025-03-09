@@ -19,13 +19,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(
     cors({
-      origin: (origin, callback) => {
-        if (!origin || origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
+      origin: "*",
       credentials: true, 
     }));
 
@@ -51,7 +45,7 @@ io.on("connection", (socket) => {
 checkConnection()
     .then(() => {
         // Start Server only if DB is running
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`);
         });
     })
@@ -59,4 +53,4 @@ checkConnection()
         console.error("Failed to connect to DB. Server not started.", err);
     });
 
-    export { io ,server };
+    export { io };

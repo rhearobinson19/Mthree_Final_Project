@@ -5,14 +5,9 @@ import quizImage from "../assets/quiz.jpeg";
 const Topic = () => {
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState(20);
-  const topicDescription = "This is a static topic description. Get ready for the quiz!";
+  const [topicdata, setTopicData] = useState<any>(null);
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      navigate("/quiz");
-      return;
-    }
-
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
@@ -20,11 +15,25 @@ const Topic = () => {
     return () => clearInterval(timer);
   }, [timeLeft, navigate]);
 
+  useEffect(() => {
+    // Load topic from localStorage
+    const topicdata = localStorage.getItem("topic");
+    if (topicdata) {
+      try {
+        const parsedData = JSON.parse(topicdata);
+        setTopicData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
+      } catch (error) {
+        console.error("Error parsing topic data:", error);
+      }
+    }
+  }, []);
+
+
   return (
     <div style={{ ...styles.container, backgroundImage: `url(${quizImage})` }}>
       <div style={styles.overlay} />
       <div style={styles.card}>
-        <h2 style={styles.heading}>Topic Description</h2>
+        <h2 style={styles.heading}>parsedData</h2>
         <p style={styles.description}>{topicDescription}</p>
 
         {/* Circular Timer */}

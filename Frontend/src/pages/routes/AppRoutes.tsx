@@ -10,6 +10,7 @@ import Dashboard from "../Dashboard";
 import Queue from "../Queue";
 import Quiz  from "../Quiz";
 import Topic from "../Topic";
+import Quiz1 from "../temp";
 
 const AppRoutes: React.FC = () => {
   return (

@@ -1,28 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 import quizImage from "../assets/quiz.jpeg";
 
 const Quiz: React.FC = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState(120);
   const [timeUp, setTimeUp] = useState(false);
   const [questionData, setQuestionData] = useState<any>(null);
-  const [topicId] = useState<number>(() => Math.floor(Math.random() * 5) + 1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<(string | null)[]>(new Array(5).fill(null));
-
-  // ✅ Always call hooks in the same order
-  useEffect(() => {
-    const token = Cookies.get("token") || localStorage.getItem("token");
-    console.log("Token in Quiz:", token); // Debugging
-    if (!token) {
-      navigate("/login"); // Redirect if no token
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [navigate]);
 
   // Timer countdown
   useEffect(() => {
@@ -36,29 +22,20 @@ const Quiz: React.FC = () => {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  // Fetch questions (after authentication is confirmed)
   useEffect(() => {
-    if (!isAuthenticated) return; // ✅ Avoids early API calls before authentication
-
-    const fetchQuestions = async () => {
+    
+    // Load questions from localStorage
+    const questionsData = localStorage.getItem("questions");
+    if (questionsData) {
       try {
-        const token = Cookies.get("token") || localStorage.getItem("token");
-        const response = await fetch(`http://localhost:5000/queue/topic/${topicId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
-        if (data.message?.questions?.length > 0) {
-          setQuestionData(data.message.questions[0]);
-        }
+        const parsedData = JSON.parse(questionsData);
+        setQuestionData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
       } catch (error) {
-        console.error("Error fetching questions:", error);
+        console.error("Error parsing questions data:", error);
       }
-    };
-    fetchQuestions();
-  }, [isAuthenticated, topicId]); // ✅ Waits until authentication is set
+    }
+  }, []);
 
-  // ✅ Prevent rendering issues by handling "Loading" properly
-  if (!isAuthenticated) return <p>Checking authentication...</p>;
   if (!questionData) return <p>Loading questions...</p>;
 
   const questionKey = `q${currentQuestionIndex + 1}`;
