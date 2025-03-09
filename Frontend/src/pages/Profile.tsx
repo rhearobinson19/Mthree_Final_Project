@@ -1,46 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { IconButton, Slide } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend
 } from "recharts";
-// import profileBg from "../assets/profile.jpg"; // Adjust path if needed
 
-const styles = {
-  width: "100vw",
-  minHeight: "100vh",
-  color: "white",
-  fontSize: "20px",
-  fontWeight: "bold",
-  textAlign: "center",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  paddingTop: "80px",
-  backgroundImage: "",
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  overflowX: "hidden",
-  boxSizing: "border-box",
-  position: "relative",
-};
-
-const COLORS = ["#4caf50", "#f44336", "#ff9800"];
+// Import assets
+import logo from "../assets/swords.jpg";
+import profileBg from "../assets/profil.jpg";
+import { Margin } from "@mui/icons-material";
 
 const Profile = () => {
-  const navigate = useNavigate();
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
+  
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  // Reset sidebar state when location changes
   useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Component lifecycle logging and chart animation
+  useEffect(() => {
+    console.log("Profile Mounted");
     const timer = setTimeout(() => setShowCharts(true), 300);
-    return () => clearTimeout(timer);
+    return () => {
+      console.log("Profile Unmounted");
+      clearTimeout(timer);
+    };
   }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
 
   const userDetails = {
     username: "Player123",
-    rank: "Gold",
+    points: "100",
     matchesPlayed: 50,
   };
 
@@ -56,59 +56,409 @@ const Profile = () => {
     { category: "Hard", frequency: 7 },
   ];
 
+  const COLORS = ["#4caf50", "#f44336", "#ff9800"];
+
   return (
-    <div style={styles}>
-      <IconButton
-        onClick={() => navigate("/")}
-        sx={{ position: "absolute", top: 20, left: 20, color: "white" }}
-      >
-        <ArrowBackIcon />
-      </IconButton>
+    <div style={containerStyles}>
+      {/* Overlay for sidebar */}
+      {isSidebarOpen && <div style={overlayStyles} onClick={() => setSidebarOpen(false)}></div>}
 
-    
+      {/* Header Navbar */}
+      <header style={navbarStyles}>
+        <button onClick={toggleSidebar} style={menuButtonStyles}>☰</button>
+        <img src={logo} alt="Logo" style={logoStyles} />
+        <h1 style={navbarTitleStyles}>QUIZENA</h1>
+      </header>
 
-      <Slide direction="up" in={showCharts} timeout={1000}>
-        <div style={{ width: "90%", display: "flex", flexDirection: "column", alignItems: "center", gap: "30px" }}>
-          <h2>Game Statistics</h2>
-
-          {/* Flex container for Pie Chart & Bar Chart */}
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: "40px" }}>
-            {/* Pie Chart */}
-            <ResponsiveContainer width={300} height={300}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-
-            {/* Bar Chart (Frequency Graph) */}
-            <ResponsiveContainer width={400} height={300}>
-              <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="category" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="frequency" fill="#ff9800" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      {/* Sidebar */}
+      <div style={{ ...sidebarStyles, transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)" }}>
+        <div style={sidebarHeaderStyles}>
+          <img src={logo} alt="Profile" style={profileImgStyles} />
+          <h3>{userDetails.username}</h3>
         </div>
-      </Slide>
+        <nav>
+          <ul style={navListStyles}>
+            <li>
+              <Link to="/" style={{ ...navLinkStyles, ...(location.pathname === "/" ? sidebarActiveStyles : {}) }}>
+                <span style={iconStyles}>🏠</span> Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/dashboard" style={{ ...navLinkStyles, ...(location.pathname === "/dashboard" ? sidebarActiveStyles : {}) }}>
+                <span style={iconStyles}>⚔️</span> Enter Arena
+              </Link>
+            </li>
+            <li>
+              <Link to="/profile" style={{ ...navLinkStyles, ...(location.pathname === "/profile" ? sidebarActiveStyles : {}) }}>
+                <span style={iconStyles}>👤</span> Profile
+              </Link>
+            </li>
+            <li>
+              <Link to="/leaderboard" style={{ ...navLinkStyles, ...(location.pathname === "/leaderboard" ? sidebarActiveStyles : {}) }}>
+                <span style={iconStyles}>🏆</span> Leaderboard
+              </Link>
+            </li>
+            <li>
+              <Link to="/rules" style={{ ...navLinkStyles, ...(location.pathname === "/rules" ? sidebarActiveStyles : {}) }}>
+                <span style={iconStyles}>📜</span> Rules
+              </Link>
+            </li>
+            <li>
+              <Link to="/logout" style={logoutLinkStyles}>
+                <span style={iconStyles}>🚪</span> Logout
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* Main Content - Profile */}
+      <div style={mainContentStyles}>
+        <div style={contentOverlayStyles}>
+          {/* User Info Card */}
+          <div style={userInfoCardStyles}>
+            <div style={userAvatarContainerStyles}>
+              <img src={logo} alt="User Avatar" style={userAvatarStyles} />
+            </div>
+            <h2 style={userNameStyles}>{userDetails.username}</h2>
+            <div style={userDetailsContainerStyles}>
+              <div style={userDetailItemStyles}>
+                <span style={userDetailLabelStyles}>Points:</span>
+                <span style={userDetailValueStyles}>{userDetails.points}</span>
+              </div>
+              <div style={userDetailItemStyles}>
+                <span style={userDetailLabelStyles}>Matches:</span>
+                <span style={userDetailValueStyles}>{userDetails.matchesPlayed}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Section */}
+          <Slide direction="up" in={showCharts} timeout={1000}>
+            <div style={statsSectionStyles}>
+              <h2 style={sectionTitleStyles}>Game Statistics</h2>
+              
+              {/* Flex container for charts */}
+              <div style={chartsContainerStyles}>
+                {/* Pie Chart Card */}
+                <div style={chartCardStyles}>
+                  <h3 style={chartTitleStyles}>Match Results</h3>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={70}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${value} games`, null]} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                {/* Bar Chart Card */}
+                <div style={chartCardStyles}>
+                  <h3 style={chartTitleStyles}>Question Difficulty</h3>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={barData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
+                      <XAxis dataKey="category" stroke="white" />
+                      <YAxis stroke="white" />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'rgba(20, 20, 20, 0.9)', border: 'none', borderRadius: '5px' }}
+                        labelStyle={{ color: 'white' }}
+                      />
+                      <Legend wrapperStyle={{ color: 'white' }} />
+                      <Bar dataKey="frequency" name="Questions Answered" fill="#ff9800" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </Slide>
+        </div>
+      </div>
     </div>
   );
+};
+
+// Styles from Dashboard
+const containerStyles = {
+  display: "flex",
+  flexDirection: "column",
+  height: "100vh",
+  width: "100vw",
+  position: "relative",
+  overflow: "hidden", // Prevent scrolling
+};
+
+const overlayStyles = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  zIndex: 9,
+};
+
+const navbarStyles = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  background: "linear-gradient(to right, #2C3E50, #4CA1AF)",
+  color: "white",
+  padding: "15px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  gap: "15px",
+  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+  zIndex: 10,
+};
+
+const sidebarStyles = {
+  position: "fixed",
+  top: "70px",
+  left: 0,
+  width: "260px",
+  height: "calc(100% - 70px)",
+  background: "#2C3E50",
+  color: "white",
+  display: "flex",
+  flexDirection: "column",
+  padding: "20px",
+  transition: "transform 0.3s ease-in-out",
+  boxShadow: "3px 0 15px rgba(0, 0, 0, 0.2)",
+  zIndex: 11,
+  borderTopRightRadius: "0px",
+  borderBottomRightRadius: "10px",
+  transform: "translateX(-100%)",
+};
+
+const sidebarHeaderStyles = {
+  textAlign: "center",
+  marginBottom: "20px",
+  paddingBottom: "10px",
+  borderBottom: "2px solid rgba(255, 255, 255, 0.3)",
+};
+
+const profileImgStyles = {
+  width: "60px",
+  height: "60px",
+  borderRadius: "50%",
+  border: "2px solid white",
+  marginBottom: "10px",
+};
+
+const navListStyles = {
+  listStyleType: "none",
+  padding: 0,
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+};
+
+const navLinkStyles = {
+  color: "white",
+  textDecoration: "none",
+  display: "flex",
+  alignItems: "center",
+  padding: "12px",
+  borderRadius: "5px",
+  transition: "background 0.3s, transform 0.2s",
+  fontSize: "18px",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const logoutLinkStyles = {
+  ...navLinkStyles,
+  background: "#E74C3C",
+  textAlign: "center",
+  marginTop: "20px",
+};
+
+const iconStyles = {
+  marginRight: "10px",
+  fontSize: "20px",
+};
+
+const sidebarActiveStyles = {
+  backgroundColor: "#4CA1AF",
+  transform: "scale(1.05)",
+};
+
+const navbarTitleStyles = {
+  margin: 0,
+  fontSize: "1.8em",
+  fontWeight: "bold",
+};
+
+const menuButtonStyles = {
+  fontSize: "24px",
+  background: "transparent",
+  color: "white",
+  border: "none",
+  cursor: "pointer",
+  marginLeft: "10px",
+};
+
+const logoStyles = {
+  width: "40px",
+  height: "40px",
+  borderRadius: "50%",
+};
+
+// Modified main content styles to allow scrolling
+const mainContentStyles = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  backgroundImage: `url(${profileBg})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  zIndex: 1,
+  paddingTop: "70px", // For navbar space
+  overflowY: "auto", // Allow vertical scrolling
+};
+
+// Modified content overlay styles
+const contentOverlayStyles = {
+  width: "100%",
+  minHeight: "100%",
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "flex-start", // Changed from center to flex-start
+  padding: "20px 20px 60px 20px", // Added bottom padding
+  boxSizing: "border-box",
+};
+
+const userInfoCardStyles = {
+  backgroundColor: "rgba(20, 20, 20, 0.8)",
+  borderRadius: "10px",
+  padding: "20px",
+  width: "90%",
+  maxWidth: "400px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  marginTop: "20px", // Added top margin
+  marginBottom: "30px",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+  border: "1px solid rgba(255, 255, 255, 0.1)",
+};
+
+const userAvatarContainerStyles = {
+  width: "100px", // Reduced size
+  height: "100px", // Reduced size
+  borderRadius: "50%",
+  overflow: "hidden",
+  border: "3px solid rgba(76, 161, 175, 0.7)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: "15px",
+  background: "#2C3E50",
+  boxShadow: "0 0 20px rgba(76, 161, 175, 0.5)",
+};
+
+const userAvatarStyles = {
+  width: "90px", // Reduced size
+  height: "90px", // Reduced size
+  borderRadius: "50%",
+  objectFit: "cover",
+};
+
+const userNameStyles = {
+  color: "white",
+  fontSize: "24px", // Reduced font size
+  margin: "0 0 15px 0",
+  textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+};
+
+const userDetailsContainerStyles = {
+  width: "100%",
+  display: "flex",
+  justifyContent: "space-around",
+  marginTop: "5px",
+};
+
+const userDetailItemStyles = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+};
+
+const userDetailLabelStyles = {
+  color: "rgba(255, 255, 255, 0.7)",
+  fontSize: "14px",
+  marginBottom: "5px",
+};
+
+const userDetailValueStyles = {
+  color: "white",
+  fontSize: "20px",
+  fontWeight: "bold",
+};
+
+const statsSectionStyles = {
+  width: "90%",
+  maxWidth: "1000px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "20px",
+};
+
+const sectionTitleStyles = {
+  color: "white",
+  fontSize: "24px", // Reduced font size
+  margin: "0 0 10px 0",
+  textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+};
+
+const chartsContainerStyles = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "stretch",
+  flexWrap: "wrap",
+  gap: "20px",
+  width: "100%",
+  marginBottom: "20px",
+  marginTop: "30px",
+};
+
+const chartCardStyles = {
+  backgroundColor: "rgba(20, 20, 20, 0.8)",
+  borderRadius: "10px",
+  padding: "15px",
+  flex: "1 1 300px", // Reduced min-width
+  minHeight: "280px", // Reduced height
+  display: "flex",
+  flexDirection: "column",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+  border: "1px solid rgba(255, 255, 255, 0.1)",
+};
+
+const chartTitleStyles = {
+  color: "rgba(255, 255, 255, 0.9)",
+  fontSize: "18px", // Reduced font size
+  marginBottom: "10px",
+  textAlign: "center",
 };
 
 export default Profile;

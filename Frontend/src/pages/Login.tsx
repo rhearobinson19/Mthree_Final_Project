@@ -1,9 +1,23 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Box, Button, TextField, Typography, Alert } from "@mui/material";
-import axios from "axios"; // Import axios for API call
-
 import registerImage from "../assets/register.jpg";
+
+// Add this to your global CSS file or create a style component
+const globalStyles = `
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  #root {
+    width: 100%;
+    height: 100%;
+  }
+`;
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -43,89 +57,102 @@ const Login: React.FC = () => {
     } catch (error: any) {
         setError(error.message); // Show error message in UI
     }
-};
-
-
+  };
 
   return (
-    <Box
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        backgroundImage: `url(${registerImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <>
+      {/* Inject global styles */}
+      <style>{globalStyles}</style>
+      
       <Box
         sx={{
-          padding: "30px",
-          borderRadius: "10px",
+          width: "100vw",
+          height: "100vh",
+          margin: 0,
+          padding: 0,
+          backgroundImage: `url(${registerImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
           display: "flex",
-          flexDirection: "column",
+          justifyContent: "center",
           alignItems: "center",
-          fontWeight: "bold",
-          fontSize: "2rem",
-          color: "white",
-          width: "350px",
-          boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.6)",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
         }}
       >
-        <Typography variant="h4" sx={{ marginBottom: "20px", fontFamily: "serif" }}>
-          Login
-        </Typography>
+        <Box
+          sx={{
+            padding: "30px",
+            borderRadius: "10px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            fontWeight: "bold",
+            fontSize: "2rem",
+            color: "white",
+            width: "350px",
+            boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.6)",
+            backdropFilter: "blur(5px)",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+          }}
+        >
+          <Typography variant="h4" sx={{ marginBottom: "20px", fontFamily: "serif" }}>
+            Login
+          </Typography>
 
-        {/* Display Error Message if Any */}
-        {error && <Alert severity="error">{error}</Alert>}
+          {/* Display Error Message if Any */}
+          {error && <Alert severity="error">{error}</Alert>}
 
-        {/* Form Start */}
-        <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-          <Typography sx={styles.label}>Email</Typography>
-          <TextField
-            type="email"
-            variant="outlined"
-            fullWidth
-            placeholder="Enter your email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            sx={styles.input}
-          />
+          {/* Form Start */}
+          <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+            <Typography sx={styles.label}>Email</Typography>
+            <TextField
+              type="email"
+              variant="outlined"
+              fullWidth
+              placeholder="Enter your email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              sx={styles.input}
+            />
 
-          <Typography sx={styles.label}>Password</Typography>
-          <TextField
-            type="password"
-            variant="outlined"
-            fullWidth
-            placeholder="Enter your password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            sx={styles.input}
-          />
+            <Typography sx={styles.label}>Password</Typography>
+            <TextField
+              type="password"
+              variant="outlined"
+              fullWidth
+              placeholder="Enter your password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              sx={styles.input}
+            />
 
-          <Button type="submit" variant="contained" sx={styles.submitButton}>
-            Submit
+            <Button type="submit" variant="contained" sx={styles.submitButton}>
+              Submit
+            </Button>
+          </form>
+          {/* Form End */}
+
+          <Typography sx={styles.registerText}>
+            Don't have an account?{" "}
+            <Link to="/registration" style={styles.registerLink}>
+              Register
+            </Link>
+          </Typography>
+
+          {/* Move to Home Page Button */}
+          <Button component={Link} to="/" variant="contained" sx={styles.submitButton}>
+            Move to Home Page
           </Button>
-        </form>
-        {/* Form End */}
-
-        <Typography sx={styles.registerText}>
-          Don't have an account?{" "}
-          <Link to="/registration" style={styles.registerLink}>
-            Register
-          </Link>
-        </Typography>
-
-        {/* Move to Home Page Button */}
-        <Button component={Link} to="/" variant="contained" sx={styles.submitButton}>
-          Move to Home Page
-        </Button>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 

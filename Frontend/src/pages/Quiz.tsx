@@ -57,12 +57,6 @@ const Quiz: React.FC = () => {
     fetchQuestions();
   }, [isAuthenticated, topicId]); // ✅ Waits until authentication is set
 
-  const handleLogout = () => {
-    Cookies.remove("token");
-    localStorage.removeItem("token");
-    navigate("/");
-  };
-
   // ✅ Prevent rendering issues by handling "Loading" properly
   if (!isAuthenticated) return <p>Checking authentication...</p>;
   if (!questionData) return <p>Loading questions...</p>;
@@ -76,107 +70,171 @@ const Quiz: React.FC = () => {
   ];
 
   return (
-    <div style={{ ...styles.container, backgroundImage: `url(${quizImage})` }}>
-      <button style={styles.logoutButton} onClick={handleLogout}>Logout</button>
+    <div style={styles.pageWrapper}>
+      <div style={styles.container}>
+        <div style={styles.overlay}></div>
 
-      {timeUp ? (
-        <div style={styles.modal}>
-          <h2 style={{ color: "red", fontSize: "24px", marginBottom: "20px" }}>Time Up!</h2>
-          <p>Your selected answers: {JSON.stringify(selectedAnswers)}</p>
-          <Link to="/dashboard">
-            <button style={styles.backButton}>Back to Home</button>
-          </Link>
-        </div>
-      ) : (
-        <div style={styles.quizCard}>
-          <h2 style={styles.heading}>Quiz Time!</h2>
-          <div style={styles.timerBox}>
-            <p>{timeLeft} sec</p>
+        {timeUp ? (
+          <div style={styles.modal}>
+            <h2 style={{ color: "red", fontSize: "24px", marginBottom: "20px" }}>Time Up!</h2>
+            <p>Your selected answers: {JSON.stringify(selectedAnswers)}</p>
+            <Link to="/dashboard">
+              <button style={styles.backButton}>Back to Home</button>
+            </Link>
           </div>
-          <div style={styles.questionContainer}>
-            <p style={styles.question}>{questionData[questionKey]}</p>
-            <div style={styles.optionsContainer}>
-              {options.map((option, index) => (
-                <button
-                  key={index}
-                  style={{
-                    ...styles.option,
-                    background: selectedAnswers[currentQuestionIndex] === option ? "#ff416c" : "#6a11cb",
-                  }}
-                  onClick={() => {
-                    const updatedAnswers = [...selectedAnswers];
-                    updatedAnswers[currentQuestionIndex] = option;
-                    setSelectedAnswers(updatedAnswers);
-                  }}
-                >
-                  {option}
-                </button>
-              ))}
+        ) : (
+          <div style={styles.quizCard}>
+            <h2 style={styles.heading}>Quiz Time!</h2>
+            
+            {/* Circular Timer */}
+            <div style={styles.timerContainer}>
+              <svg width="100" height="100">
+                {/* Background Circle */}
+                <circle cx="50" cy="50" r="40" stroke="#555" strokeWidth="8" fill="none" />
+                {/* Progress Circle */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="limegreen"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeDasharray="251.2"
+                  strokeDashoffset={(1 - timeLeft / 120) * 251.2}
+                  strokeLinecap="round"
+                  transform="rotate(-90 50 50)"
+                  style={{ transition: "stroke-dashoffset 1s linear" }}
+                />
+                {/* Timer Text */}
+                <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fontSize="18px" fill="white">
+                  {timeLeft}s
+                </text>
+              </svg>
             </div>
-          </div>
-          <div style={styles.navButtons}>
-            <button
-              style={{ ...styles.navButton, visibility: currentQuestionIndex === 0 ? "hidden" : "visible" }}
-              onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
-            >
-              Prev
-            </button>
-            <button
-              style={{ ...styles.navButton, visibility: currentQuestionIndex === 4 ? "hidden" : "visible" }}
-              onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
-            >
-              Next
-            </button>
-          </div>
-          {currentQuestionIndex === 4 && (
-            <div style={{ marginTop: "20px" }}>
+            
+            <div style={styles.questionContainer}>
+              <p style={styles.question}>{questionData[questionKey]}</p>
+              <div style={styles.optionsContainer}>
+                {options.map((option, index) => (
+                  <button
+                    key={index}
+                    style={{
+                      ...styles.option,
+                      background: selectedAnswers[currentQuestionIndex] === option ? "#ff416c" : "#6a11cb",
+                    }}
+                    onClick={() => {
+                      const updatedAnswers = [...selectedAnswers];
+                      updatedAnswers[currentQuestionIndex] = option;
+                      setSelectedAnswers(updatedAnswers);
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={styles.navButtons}>
               <button
-                style={styles.finishButton}
-                onClick={() => setTimeUp(true)}
+                style={{ ...styles.navButton, visibility: currentQuestionIndex === 0 ? "hidden" : "visible" }}
+                onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
               >
-                Finish Quiz
+                Prev
+              </button>
+              <button
+                style={{ ...styles.navButton, visibility: currentQuestionIndex === 4 ? "hidden" : "visible" }}
+                onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+              >
+                Next
               </button>
             </div>
-          )}
-        </div>
-      )}
+            {currentQuestionIndex === 4 && (
+              <div style={{ marginTop: "20px" }}>
+                <button
+                  style={styles.finishButton}
+                  onClick={() => setTimeUp(true)}
+                >
+                  Finish Quiz
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 const styles = {
+  // New wrapper to handle full page styling
+  pageWrapper: {
+    margin: 0,
+    padding: 0,
+    width: "100%",
+    height: "100vh",
+    overflow: "hidden",
+    position: "fixed" as "fixed",
+    top: 0,
+    left: 0,
+  },
   container: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column" as "column",
     justifyContent: "center",
     alignItems: "center",
-    height: "100vh",
-    width: "100vw",
+    height: "100%",
+    width: "100%",
+    backgroundImage: `url(${quizImage})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
+    position: "relative" as "relative",
+    overflow: "hidden",
+    margin: 0,
+    padding: 0,
+  },
+  overlay: {
+    position: "absolute" as "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    margin: 0,
+    padding: 0,
   },
   quizCard: {
+    position: "relative" as "relative",
     backgroundColor: "rgba(0, 0, 0, 0.85)",
     padding: "30px",
     borderRadius: "12px",
-    textAlign: "center",
+    textAlign: "center" as "center",
     width: "500px",
+    maxWidth: "90%",
     color: "#f0f0f0",
+    zIndex: 1,
+    boxShadow: "0 10px 20px rgba(0, 0, 0, 0.3)",
   },
-  logoutButton: {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    backgroundColor: "#ff4b2b",
-    color: "white",
-    border: "none",
-    padding: "10px 15px",
-    borderRadius: "5px",
-    cursor: "pointer",
+  heading: { 
+    fontSize: "26px", 
+    marginBottom: "15px" 
   },
-  questionContainer: { marginBottom: "15px" },
-  question: { fontSize: "18px", fontWeight: "bold" },
-  optionsContainer: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" },
+  timerContainer: {
+    display: "flex",
+    justifyContent: "center",
+    marginBottom: "15px",
+  },
+  questionContainer: { 
+    marginBottom: "15px", 
+    marginTop: "10px" 
+  },
+  question: { 
+    fontSize: "18px", 
+    fontWeight: "bold" as "bold" 
+  },
+  optionsContainer: { 
+    display: "grid", 
+    gridTemplateColumns: "1fr 1fr", 
+    gap: "10px" 
+  },
   option: {
     padding: "12px",
     fontSize: "16px",
@@ -185,7 +243,11 @@ const styles = {
     borderRadius: "8px",
     cursor: "pointer",
   },
-  navButtons: { display: "flex", justifyContent: "space-between", marginTop: "20px" },
+  navButtons: { 
+    display: "flex", 
+    justifyContent: "space-between", 
+    marginTop: "20px" 
+  },
   navButton: {
     padding: "10px 20px",
     fontSize: "16px",
@@ -203,6 +265,27 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+  },
+  modal: {
+    position: "relative" as "relative",
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    padding: "30px",
+    borderRadius: "12px",
+    textAlign: "center" as "center",
+    width: "500px",
+    maxWidth: "90%",
+    color: "#f0f0f0",
+    zIndex: 1,
+  },
+  backButton: {
+    padding: "10px 20px",
+    fontSize: "16px",
+    backgroundColor: "#0f7bff",
+    color: "white",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    marginTop: "20px",
   },
 };
 

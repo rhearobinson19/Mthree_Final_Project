@@ -1,10 +1,23 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/swords.jpg";
 import backgroundImg from "../assets/dashboard.jpg";
+import AppRoutes from "./routes/AppRoutes";
 
 const Dashboard: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  
+  // Reset sidebar state when location changes
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Component lifecycle logging
+  useEffect(() => {
+    console.log("Dashboard Mounted");
+    return () => console.log("Dashboard Unmounted");
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -12,7 +25,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <div style={containerStyles}>
-      {isSidebarOpen && <div style={overlayStyles} onClick={toggleSidebar}></div>}
+      {/* Use React conditional rendering for overlay instead of DOM manipulation */}
+      {isSidebarOpen && <div style={overlayStyles} onClick={() => setSidebarOpen(false)}></div>}
 
       <header style={navbarStyles}>
         <button onClick={toggleSidebar} style={menuButtonStyles}>☰</button>
@@ -20,7 +34,7 @@ const Dashboard: React.FC = () => {
         <h1 style={navbarTitleStyles}>QUIZENA</h1>
       </header>
 
-      {/* Sidebar */}
+      {/* Sidebar - use React state to control visibility */}
       <div style={{ ...sidebarStyles, transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)" }}>
         <div style={sidebarHeaderStyles}>
           <img src={logo} alt="Profile" style={profileImgStyles} />
@@ -29,17 +43,27 @@ const Dashboard: React.FC = () => {
         <nav>
           <ul style={navListStyles}>
             <li>
-              <Link to="/" style={{ ...navLinkStyles, ...sidebarActiveStyles }}>
+              <Link to="/" style={{ ...navLinkStyles, ...(location.pathname === "/" ? sidebarActiveStyles : {}) }}>
                 <span style={iconStyles}>🏠</span> Home
               </Link>
             </li>
             <li>
-              <Link to="/profile" style={navLinkStyles}>
+              <Link to="/dashboard" style={{ ...navLinkStyles, ...(location.pathname === "/dashboard" ? sidebarActiveStyles : {}) }}>
+                <span style={iconStyles}>⚔️</span> Enter Arena
+              </Link>
+            </li>
+            <li>
+              <Link to="/profile" style={{ ...navLinkStyles, ...(location.pathname === "/profile" ? sidebarActiveStyles : {}) }}>
                 <span style={iconStyles}>👤</span> Profile
               </Link>
             </li>
             <li>
-              <Link to="/rules" style={navLinkStyles}>
+              <Link to="/leaderboard" style={{ ...navLinkStyles, ...(location.pathname === "/leaderboard" ? sidebarActiveStyles : {}) }}>
+                <span style={iconStyles}>🏆</span> Leaderboard
+              </Link>
+            </li>
+            <li>
+              <Link to="/rules" style={{ ...navLinkStyles, ...(location.pathname === "/rules" ? sidebarActiveStyles : {}) }}>
                 <span style={iconStyles}>📜</span> Rules
               </Link>
             </li>
@@ -61,11 +85,13 @@ const Dashboard: React.FC = () => {
           </Link>
         </div>
       </div>
+      
+      {/* AppRoutes should be rendered once at the App level, not in each component */}
     </div>
   );
 };
 
-/* Styles */
+/* Styles remain the same */
 const containerStyles: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -208,6 +234,8 @@ const mainContentStyles: React.CSSProperties = {
   backgroundAttachment: "fixed",
   width: "100vw",
   height: "100vh",
+  filter: "brightness(1)",
+  transition: "0.3s ease-in-out",
 };
 
 const contentStyles: React.CSSProperties = {
@@ -221,7 +249,8 @@ const contentStyles: React.CSSProperties = {
   justifyContent: "center",
   alignItems: "center",
   textAlign: "center",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  backgroundColor: "rgba(0, 0, 0, 0.3)",
+  transition: "0.3s ease-in-out",
 };
 
 const titleStyles: React.CSSProperties = {
