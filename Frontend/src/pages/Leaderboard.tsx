@@ -3,23 +3,56 @@ import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/swords.jpg";
 import backgroundImg from "../assets/dashboard.jpg";
 
-// Sample leaderboard data - replace with your actual data source
-const leaderboardData = [
-  { rank: 1, username: "DragonSlayer", points: 9850, wins: 42, losses: 5 },
-  { rank: 2, username: "QuizWizard", points: 8720, wins: 38, losses: 7 },
-  { rank: 3, username: "BrainMaster", points: 8200, wins: 36, losses: 8 },
-  { rank: 4, username: "TriviaKing", points: 7650, wins: 33, losses: 9 },
-  { rank: 5, username: "KnowledgeHunter", points: 7200, wins: 31, losses: 10 },
-  { rank: 6, username: "QuizChampion", points: 6850, wins: 29, losses: 11 },
-  { rank: 7, username: "MindBender", points: 6400, wins: 27, losses: 12 },
-  { rank: 8, username: "FactSeeker", points: 6100, wins: 26, losses: 13 },
-  { rank: 9, username: "WisdomWarrior", points: 5800, wins: 24, losses: 14 },
-  { rank: 10, username: "TriviaGuru", points: 5500, wins: 23, losses: 15 },
-];
+// Define the interface for leaderboard data
+interface LeaderboardEntry {
+  userid: string;
+  username: string;
+  points: string;
+  win: number;
+  loss: number;
+  draw: number;
+}
+
+interface LeaderboardResponse {
+  message: {
+    leaderboard: LeaderboardEntry[];
+  };
+}
 
 const Leaderboard: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const location = useLocation();
+  
+  // Fetch leaderboard data from API
+  useEffect(() => {
+    const fetchLeaderboardData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("http://localhost:5000/data/leaderboard");
+        const data: LeaderboardResponse = await response.json();
+        
+        if (data && data.message && data.message.leaderboard) {
+          // Sort leaderboard by points (descending)
+          const sortedData = [...data.message.leaderboard].sort(
+            (a, b) => parseInt(b.points) - parseInt(a.points)
+          );
+          setLeaderboardData(sortedData);
+        } else {
+          setError("Invalid data format received from server");
+        }
+      } catch (err) {
+        setError("Failed to fetch leaderboard data");
+        console.error("Error fetching leaderboard:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLeaderboardData();
+  }, []);
   
   // Reset sidebar state when location changes
   useEffect(() => {
@@ -95,53 +128,58 @@ const Leaderboard: React.FC = () => {
           <div style={leaderboardContainerStyles}>
             <h1 style={leaderboardTitleStyles}>🏆 GLOBAL LEADERBOARD 🏆</h1>
             
-            <div style={tableContainerStyles}>
-              <table style={tableStyles}>
-                <thead>
-                  <tr>
-                    <th style={tableHeaderStyles}>Rank</th>
-                    <th style={tableHeaderStyles}>Username</th>
-                    <th style={tableHeaderStyles}>Points</th>
-                    <th style={tableHeaderStyles}>W/L</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboardData.map((player, index) => (
-                    <tr key={index} style={{
-                      ...tableRowStyles,
-                      background: index === 0 ? 'rgba(255, 215, 0, 0.2)' : // Gold for 1st
-                                 index === 1 ? 'rgba(192, 192, 192, 0.2)' : // Silver for 2nd
-                                 index === 2 ? 'rgba(205, 127, 50, 0.2)' : // Bronze for 3rd
-                                 'rgba(44, 62, 80, 0.2)' // Regular styling
-                    }}>
-                      <td style={tableCellStyles}>
-                        {index === 0 ? '🥇' : 
-                         index === 1 ? '🥈' : 
-                         index === 2 ? '🥉' : player.rank}
-                      </td>
-                      <td style={{...tableCellStyles, fontWeight: 'bold'}}>
-                        {player.username}
-                      </td>
-                      <td style={tableCellStyles}>
-                        <span style={pointsStyles}>{player.points}</span>
-                      </td>
-                      <td style={tableCellStyles}>
-                        <span style={winsStyles}>{player.wins}</span> / <span style={lossesStyles}>{player.losses}</span>
-                      </td>
+            {isLoading ? (
+              <div style={loadingStyles}>Loading leaderboard data...</div>
+            ) : error ? (
+              <div style={errorStyles}>{error}</div>
+            ) : (
+              <div style={tableContainerStyles}>
+                <table style={tableStyles}>
+                  <thead>
+                    <tr>
+                      <th style={tableHeaderStyles}>Rank</th>
+                      <th style={tableHeaderStyles}>Username</th>
+                      <th style={tableHeaderStyles}>Points</th>
+                      <th style={tableHeaderStyles}>W</th>
+                      <th style={tableHeaderStyles}>L</th>
+                      <th style={tableHeaderStyles}>D</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            <div style={yourRankContainerStyles}>
-              <h3 style={yourRankTitleStyles}>Your Rank</h3>
-              <div style={yourRankStyles}>
-                <span style={yourPositionStyles}>14</span>
-                <span style={yourUsernameStyles}>John Doe</span>
-                <span style={yourPointsStyles}>4,320 pts</span>
+                  </thead>
+                  <tbody>
+                    {leaderboardData.map((player, index) => (
+                      <tr key={player.userid} style={{
+                        ...tableRowStyles,
+                        background: index === 0 ? 'rgba(255, 215, 0, 0.2)' : // Gold for 1st
+                                   index === 1 ? 'rgba(192, 192, 192, 0.2)' : // Silver for 2nd
+                                   index === 2 ? 'rgba(205, 127, 50, 0.2)' : // Bronze for 3rd
+                                   'rgba(44, 62, 80, 0.2)' // Regular styling
+                      }}>
+                        <td style={tableCellStyles}>
+                          {index === 0 ? '🥇' : 
+                           index === 1 ? '🥈' : 
+                           index === 2 ? '🥉' : (index + 1)}
+                        </td>
+                        <td style={{...tableCellStyles, fontWeight: 'bold'}}>
+                          {player.username}
+                        </td>
+                        <td style={tableCellStyles}>
+                          <span style={pointsStyles}>{player.points}</span>
+                        </td>
+                        <td style={tableCellStyles}>
+                          <span style={winsStyles}>{player.win}</span>
+                        </td>
+                        <td style={tableCellStyles}>
+                          <span style={lossesStyles}>{player.loss}</span>
+                        </td>
+                        <td style={tableCellStyles}>
+                          <span style={drawsStyles}>{player.draw}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -312,7 +350,7 @@ const contentStyles: React.CSSProperties = {
   padding: "20px",
 };
 
-// New styles for Leaderboard
+// Leaderboard styles
 const leaderboardContainerStyles: React.CSSProperties = {
   backgroundColor: "rgba(44, 62, 80, 0.8)",
   borderRadius: "15px",
@@ -335,7 +373,7 @@ const leaderboardTitleStyles: React.CSSProperties = {
 
 const tableContainerStyles: React.CSSProperties = {
   overflowY: "auto",
-  maxHeight: "50vh",
+  maxHeight: "70vh",
   borderRadius: "10px",
   boxShadow: "inset 0 0 10px rgba(0, 0, 0, 0.3)",
 };
@@ -387,52 +425,26 @@ const lossesStyles: React.CSSProperties = {
   fontWeight: "bold",
 };
 
-const yourRankContainerStyles: React.CSSProperties = {
-  backgroundColor: "rgba(76, 161, 175, 0.3)",
-  padding: "15px",
-  borderRadius: "10px",
-  marginTop: "20px",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  border: "2px solid rgba(76, 161, 175, 0.8)",
-};
-
-const yourRankTitleStyles: React.CSSProperties = {
-  color: "white",
-  margin: "0 0 10px 0",
-  fontSize: "18px",
+const drawsStyles: React.CSSProperties = {
+  color: "#f39c12", // Orange color for draws
   fontWeight: "bold",
 };
 
-const yourRankStyles: React.CSSProperties = {
-  display: "flex",
-  width: "100%",
-  justifyContent: "space-around",
-  alignItems: "center",
-  padding: "10px",
-};
-
-const yourPositionStyles: React.CSSProperties = {
-  backgroundColor: "#4CA1AF",
+// Loading and error states
+const loadingStyles: React.CSSProperties = {
   color: "white",
-  fontWeight: "bold",
-  padding: "8px 15px",
-  borderRadius: "50%",
-  fontSize: "18px",
-  boxShadow: "0 3px 5px rgba(0, 0, 0, 0.2)",
-};
-
-const yourUsernameStyles: React.CSSProperties = {
-  color: "white",
-  fontWeight: "bold",
   fontSize: "20px",
+  padding: "30px",
+  textAlign: "center",
 };
 
-const yourPointsStyles: React.CSSProperties = {
-  color: "#4CA1AF",
-  fontWeight: "bold",
+const errorStyles: React.CSSProperties = {
+  color: "#e74c3c",
   fontSize: "18px",
+  padding: "30px",
+  textAlign: "center",
+  background: "rgba(0, 0, 0, 0.2)",
+  borderRadius: "10px",
 };
 
 export default Leaderboard;
