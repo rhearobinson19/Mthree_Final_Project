@@ -6,6 +6,7 @@ import http from "http";
 import authRoutes from "./routes/authRoutes";
 import queueRoutes from "./routes/queueRoutes";
 import dataRoutes from "./routes/dataRoutes";
+import { setupGameEndHandler } from "./controllers/queue";
 import { checkConnection } from "./config/db";
 
 dotenv.config();
@@ -37,9 +38,7 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
     console.log(`Player connected: ${socket.id}`);
 
-    socket.on("disconnect", () => {
-        console.log(`Player disconnected: ${socket.id}`);
-    });
+    setupGameEndHandler(socket);
 });
 
 checkConnection()
@@ -53,4 +52,4 @@ checkConnection()
         console.error("Failed to connect to DB. Server not started.", err);
     });
 
-    export { io };
+export { io };

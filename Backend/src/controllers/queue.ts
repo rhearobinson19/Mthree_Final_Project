@@ -16,8 +16,23 @@ let blockNewGame = false;
 const userSocketMap: Record<string, number> = {}; //Socket ID to User ID
 const userIdToSocketMap: Record<number, string> = {}; // User ID to Socket ID
 
+// Game results tracking
+interface GameScore {
+    userId: number;
+    score: number;
+    submitted: boolean;
+}
+
+// Track scores for active games
+const gameScores: Record<string, {
+    player1: GameScore;
+    player2: GameScore;
+    endTime: number; // Timestamp when game should end
+    gameId: string;
+}> = {};
+
 // Helper function to get user ID from socket ID
-const getUserFromSocket = (socketId: string): number | -1=> {
+const getUserFromSocket = (socketId: string): number | -1 => {
     return userSocketMap[socketId] || -1;
 };
 
@@ -26,51 +41,219 @@ const isUserInQueue = (userId: number): boolean => {
     return userIdToSocketMap.hasOwnProperty(userId);
 };
 
+// Find game ID by player's socket ID
+const findGameBySocketId = (socketId: string): string | null => {
+    const userId = getUserFromSocket(socketId);
+    if (userId === -1) return null;
+
+    for (const gameId in gameScores) {
+        if (gameScores[gameId].player1.userId === userId || 
+            gameScores[gameId].player2.userId === userId) {
+            return gameId;
+        }
+    }
+    return null;
+};
+
 const getTopicDetails = async (topicId: string) => {
     try {
-        // Get questions for the specified topic
         const questions = await getQuestionsByTopicId(topicId);
         const topic = await getTopicByTopicId(topicId);
-        return [questions,topic]
+        return [questions, topic]
     } catch (error) {
         console.error("Error fetching questions:", error);
         return [];
     }
 };
 
-// Function to save details to db
-const save_session = async (gameId: string, player1: number, player2: number) => {
+// Function to save details to db with winner
+const save_session = async (gameId: string, player1: number, player2: number, player1Score: number, player2Score: number) => {
     if (player1 === -1 || player2 === -1) { // Validating user IDs before saving
         console.error("Invalid player IDs, session not saved.");
         return;
     }
+    
+    // Determine winner (0 for tie, 1 if player1 wins, 2 if player2 wins)
+    let result = 0; // Default to tie
+    if (player1Score > player2Score) {
+        result = 1; // Player 1 wins
+    } else if (player2Score > player1Score) {
+        result = 2; // Player 2 wins
+    }
+    
     try {
-        const result = await sql`
-            INSERT INTO sessionspec (game_id, user1id, user2id) 
-            VALUES (${gameId}, ${player1}, ${player2}) 
+        const result_db = await sql`
+            INSERT INTO sessionspec (game_id, user1id, user2id, result) 
+            VALUES (${gameId}, ${player1}, ${player2}, ${result}) 
             RETURNING *;
         `;
-        console.log("Game session saved to DB:", { gameId, player1, player2 });
-        return result[0];
+        console.log("Game session saved to DB:", { gameId, player1, player2, result });
+        return result_db[0];
     } catch (error) {
         console.error("Error saving session:", error);
         return { error: "Database error" };
     }
 };
 
+// Socket event handler for game_end (receiving scores)
+export const setupGameEndHandler = (socket: any) => {
+    socket.on("game_end", (data: { gameId: string; score: number; completionTime: number }) => {
+        try {
+            const userId = getUserFromSocket(socket.id);
+            if (userId === -1) {
+                console.error(`User not found for socket ${socket.id}`);
+                return;
+            }
+            
+            const { gameId, score } = data;
+            
+            if (!gameScores[gameId]) {
+                console.error(`Game ${gameId} not found in active games`);
+                return;
+            }
+            
+            // Determine if this is player 1 or player 2
+            if (gameScores[gameId].player1.userId === userId) {
+                gameScores[gameId].player1.score = score;
+                gameScores[gameId].player1.submitted = true;
+                console.log(`Player 1 (${userId}) submitted score: ${score}`);
+            } else if (gameScores[gameId].player2.userId === userId) {
+                gameScores[gameId].player2.score = score;
+                gameScores[gameId].player2.submitted = true;
+                console.log(`Player 2 (${userId}) submitted score: ${score}`);
+            } else {
+                console.error(`User ${userId} not part of game ${gameId}`);
+                return;
+            }
+            
+            // Check if both players have submitted OR if the game has timed out
+            const currentTime = Date.now();
+            const bothSubmitted = gameScores[gameId].player1.submitted && gameScores[gameId].player2.submitted;
+            const isGameExpired = currentTime >= gameScores[gameId].endTime;
+            
+            if (bothSubmitted || isGameExpired) {
+                finishGame(gameId);
+            }
+        } catch (error) {
+            console.error("Error in game_end handler:", error);
+        }
+    });
+    
+    socket.on("disconnect", () => {
+        try {
+            const userId = getUserFromSocket(socket.id);
+            if (userId === -1) return;
+
+            console.log(`User ${userId} disconnected, cleaning up...`);
+            
+            // Check if user was in an active game
+            const gameId = findGameBySocketId(socket.id);
+            if (gameId) {
+                console.log(`User ${userId} was in active game ${gameId}, forcing game end`);
+                finishGame(gameId);
+            }
+            
+            // Remove from queue if present
+            const index = waitingQueue.indexOf(socket.id);
+            if (index !== -1) {
+                waitingQueue.splice(index, 1);
+                console.log(`Removed disconnected user ${userId} from waiting queue`);
+            }
+            
+            // Clean up mappings
+            delete userIdToSocketMap[userId];
+            delete userSocketMap[socket.id];
+        } catch (error) {
+            console.error("Error handling socket disconnect:", error);
+        }
+    });
+};
+
+// Function to finish game and save results
+const finishGame = (gameId: string) => {
+    if (!gameScores[gameId]) {
+        console.error(`Game ${gameId} not found for finishing`);
+        return;
+    }
+    
+    const { player1, player2 } = gameScores[gameId];
+    
+    console.log(`Game ${gameId} finished with scores: Player1=${player1.score}, Player2=${player2.score}`);
+    
+    // Save results to database
+    save_session(gameId, player1.userId, player2.userId, player1.score, player2.score);
+    
+    // Clean up game data
+    delete gameScores[gameId];
+
+    // Reset game state
+    activePlayers = [];
+    gameInProgress = false;
+    blockNewGame = true;
+    
+    // Block new game for 3s
+    setTimeout(() => {
+        blockNewGame = false;
+        console.log("Game queue open for new players.");
+        startGame();
+    }, 3000);
+};
+
 // Function to start a new game
-const startGame =async() => {
-    if (waitingQueue.length >= 2 && !gameInProgress && !blockNewGame) {
-        activePlayers = [waitingQueue.shift()!, waitingQueue.shift()!];
+const startGame = async() => {
+    try {
+        if (waitingQueue.length < 2 || gameInProgress || blockNewGame) {
+            return;
+        }
+        
+        // Set game in progress to prevent race conditions
         gameInProgress = true;
+        
+        activePlayers = [waitingQueue.shift()!, waitingQueue.shift()!];
 
         const gameId = uuidv4(); // Generate unique game ID
         const topicId = Math.floor(Math.random() * 5) + 1; // Random topic ID (1-5)
 
         // Get questions for this game
         const data = await getTopicDetails(topicId.toString());
+        if (!data || !data[0] || !data[1]) {
+            console.error("Failed to fetch topic details, aborting game start");
+            gameInProgress = false;
+            // Return players to queue
+            if (activePlayers.length === 2) {
+                waitingQueue.unshift(activePlayers[1]);
+                waitingQueue.unshift(activePlayers[0]);
+                activePlayers = [];
+            }
+            return;
+        }
 
         console.log(`Game started: GameID=${gameId}, Players=${activePlayers}`);
+
+        // Get player IDs
+        const player1Id = getUserFromSocket(activePlayers[0]);
+        const player2Id = getUserFromSocket(activePlayers[1]);
+        
+        if (player1Id === -1 || player2Id === -1) {
+            console.error("Invalid player IDs, aborting game start");
+            gameInProgress = false;
+            // Return valid players to queue
+            activePlayers.forEach(socketId => {
+                if (getUserFromSocket(socketId) !== -1) {
+                    waitingQueue.unshift(socketId);
+                }
+            });
+            activePlayers = [];
+            return;
+        }
+        
+        // Initialize game scores
+        gameScores[gameId] = {
+            player1: { userId: player1Id, score: 0, submitted: false },
+            player2: { userId: player2Id, score: 0, submitted: false },
+            endTime: Date.now() + 135000, // 2m 15s from now (135 seconds)
+            gameId: gameId
+        };
 
         activePlayers.forEach(socketId => {
             io.to(socketId).emit("game_start", { 
@@ -80,41 +263,17 @@ const startGame =async() => {
                 topic: data[1]
             });
         });
-
-        setTimeout(() => endGame(gameId), 135000); // 2m 15s timer
+    } catch (error) {
+        console.error("Error in startGame:", error);
+        gameInProgress = false;
+        
+        // Return players to queue
+        if (activePlayers.length === 2) {
+            waitingQueue.unshift(activePlayers[1]);
+            waitingQueue.unshift(activePlayers[0]);
+            activePlayers = [];
+        }
     }
-};
-
-// Function to end the game
-const endGame = (gameId: string) => {
-    console.log(`Game ended: GameID=${gameId}, Players=${activePlayers}`);
-    
-    // Get player IDs
-    const player1 = getUserFromSocket(activePlayers[0]);
-    const player2 = getUserFromSocket(activePlayers[1]);
-
-    io.to(activePlayers[0]).emit("game_end", { message: "Game over! Your session has ended." });
-    io.to(activePlayers[1]).emit("game_end", { message: "Game over! Your session has ended." });
-    
-    save_session(gameId,player1,player2);
-
-   // Clear player mappings
-   if (player1 !== -1) delete userIdToSocketMap[player1];
-   if (player2 !== -1) delete userIdToSocketMap[player2];
-   delete userSocketMap[activePlayers[0]];
-   delete userSocketMap[activePlayers[1]];
-
-    // Reset game state
-    activePlayers = [];
-    gameInProgress = false;
-    blockNewGame = true;
-
-    // Block new game for 10s (total cooldown 2m25s)
-    setTimeout(() => {
-        blockNewGame = false;
-        console.log("Game queue open for new players.");
-        startGame();
-    }, 10000);
 };
 
 
@@ -154,6 +313,7 @@ export const joinQueue = async (req: AuthRequest, res: Response): Promise<void> 
                 
                 // Clean up old socket mapping
                 delete userSocketMap[existingSocketId];
+                delete userIdToSocketMap[userId];
             }
         }             
 

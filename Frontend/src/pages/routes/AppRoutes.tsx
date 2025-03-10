@@ -9,8 +9,6 @@ import Registration from "../Registration";
 import Dashboard from "../Dashboard";
 import Queue from "../Queue";
 import Quiz  from "../Quiz";
-import Topic from "../Topic";
-import Quiz1 from "../temp";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -24,7 +22,6 @@ const AppRoutes: React.FC = () => {
       <Route path="/Dashboard" element={<Dashboard/>}/>
       <Route path="/Queue" element={<Queue/>}/>
       <Route path="/Quiz" element={<Quiz/>}/>
-      <Route path="/Topic" element={<Topic/>}/>
     </Routes>
   );
 };
