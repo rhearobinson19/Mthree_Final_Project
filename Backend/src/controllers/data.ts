@@ -2,7 +2,7 @@ import { sql } from "../config/db";
 
 const get_leaderBoard = async () => {
     try {
-        console.log(`Fetching LeaderBoard`);
+        // console.log(`Fetching LeaderBoard`);
         const data = await sql`
             SELECT uh.userid, u.username, uh.points, uh.win, uh.loss, uh.draw 
             FROM "userhistory" uh
@@ -24,7 +24,7 @@ const get_leaderBoard = async () => {
 
 const fetchData = async () => {
     const leaderboard = await get_leaderBoard();
-    console.log(leaderboard);
+    // console.log(leaderboard);
 };
 
 fetchData();

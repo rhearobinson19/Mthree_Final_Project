@@ -10,7 +10,6 @@ import {
 // Import assets
 import logo from "../assets/swords.jpg";
 import profileBg from "../assets/profil.jpg";
-import { Margin } from "@mui/icons-material";
 
 const Profile = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
