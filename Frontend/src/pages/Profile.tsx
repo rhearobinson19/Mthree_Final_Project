@@ -189,7 +189,7 @@ const Profile = () => {
 };
 
 // Styles from Dashboard
-const containerStyles = {
+const containerStyles : React.CSSProperties= {
   display: "flex",
   flexDirection: "column",
   height: "100vh",
@@ -198,7 +198,7 @@ const containerStyles = {
   overflow: "hidden", // Prevent scrolling
 };
 
-const overlayStyles = {
+const overlayStyles : React.CSSProperties= {
   position: "fixed",
   top: 0,
   left: 0,
@@ -208,7 +208,7 @@ const overlayStyles = {
   zIndex: 9,
 };
 
-const navbarStyles = {
+const navbarStyles : React.CSSProperties= {
   position: "fixed",
   top: 0,
   left: 0,
@@ -224,7 +224,7 @@ const navbarStyles = {
   zIndex: 10,
 };
 
-const sidebarStyles = {
+const sidebarStyles : React.CSSProperties= {
   position: "fixed",
   top: "70px",
   left: 0,
@@ -243,14 +243,14 @@ const sidebarStyles = {
   transform: "translateX(-100%)",
 };
 
-const sidebarHeaderStyles = {
+const sidebarHeaderStyles : React.CSSProperties= {
   textAlign: "center",
   marginBottom: "20px",
   paddingBottom: "10px",
   borderBottom: "2px solid rgba(255, 255, 255, 0.3)",
 };
 
-const profileImgStyles = {
+const profileImgStyles : React.CSSProperties= {
   width: "60px",
   height: "60px",
   borderRadius: "50%",
@@ -258,7 +258,7 @@ const profileImgStyles = {
   marginBottom: "10px",
 };
 
-const navListStyles = {
+const navListStyles : React.CSSProperties= {
   listStyleType: "none",
   padding: 0,
   display: "flex",
@@ -266,7 +266,7 @@ const navListStyles = {
   gap: "10px",
 };
 
-const navLinkStyles = {
+const navLinkStyles : React.CSSProperties= {
   color: "white",
   textDecoration: "none",
   display: "flex",
@@ -279,30 +279,30 @@ const navLinkStyles = {
   cursor: "pointer",
 };
 
-const logoutLinkStyles = {
+const logoutLinkStyles : React.CSSProperties= {
   ...navLinkStyles,
   background: "#E74C3C",
   textAlign: "center",
   marginTop: "20px",
 };
 
-const iconStyles = {
+const iconStyles : React.CSSProperties= {
   marginRight: "10px",
   fontSize: "20px",
 };
 
-const sidebarActiveStyles = {
+const sidebarActiveStyles : React.CSSProperties= {
   backgroundColor: "#4CA1AF",
   transform: "scale(1.05)",
 };
 
-const navbarTitleStyles = {
+const navbarTitleStyles : React.CSSProperties= {
   margin: 0,
   fontSize: "1.8em",
   fontWeight: "bold",
 };
 
-const menuButtonStyles = {
+const menuButtonStyles : React.CSSProperties= {
   fontSize: "24px",
   background: "transparent",
   color: "white",
@@ -311,14 +311,14 @@ const menuButtonStyles = {
   marginLeft: "10px",
 };
 
-const logoStyles = {
+const logoStyles : React.CSSProperties = {
   width: "40px",
   height: "40px",
   borderRadius: "50%",
 };
 
 // Modified main content styles to allow scrolling
-const mainContentStyles = {
+const mainContentStyles : React.CSSProperties = {
   position: "fixed",
   top: 0,
   left: 0,
@@ -334,7 +334,7 @@ const mainContentStyles = {
 };
 
 // Modified content overlay styles
-const contentOverlayStyles = {
+const contentOverlayStyles : React.CSSProperties = {
   width: "100%",
   minHeight: "100%",
   backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -346,7 +346,7 @@ const contentOverlayStyles = {
   boxSizing: "border-box",
 };
 
-const userInfoCardStyles = {
+const userInfoCardStyles : React.CSSProperties = {
   backgroundColor: "rgba(20, 20, 20, 0.8)",
   borderRadius: "10px",
   padding: "20px",
@@ -361,7 +361,7 @@ const userInfoCardStyles = {
   border: "1px solid rgba(255, 255, 255, 0.1)",
 };
 
-const userAvatarContainerStyles = {
+const userAvatarContainerStyles : React.CSSProperties = {
   width: "100px", // Reduced size
   height: "100px", // Reduced size
   borderRadius: "50%",
@@ -375,46 +375,46 @@ const userAvatarContainerStyles = {
   boxShadow: "0 0 20px rgba(76, 161, 175, 0.5)",
 };
 
-const userAvatarStyles = {
+const userAvatarStyles : React.CSSProperties = {
   width: "90px", // Reduced size
   height: "90px", // Reduced size
   borderRadius: "50%",
   objectFit: "cover",
 };
 
-const userNameStyles = {
+const userNameStyles : React.CSSProperties = {
   color: "white",
   fontSize: "24px", // Reduced font size
   margin: "0 0 15px 0",
   textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
 };
 
-const userDetailsContainerStyles = {
+const userDetailsContainerStyles : React.CSSProperties = {
   width: "100%",
   display: "flex",
   justifyContent: "space-around",
   marginTop: "5px",
 };
 
-const userDetailItemStyles = {
+const userDetailItemStyles : React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
 };
 
-const userDetailLabelStyles = {
+const userDetailLabelStyles : React.CSSProperties = {
   color: "rgba(255, 255, 255, 0.7)",
   fontSize: "14px",
   marginBottom: "5px",
 };
 
-const userDetailValueStyles = {
+const userDetailValueStyles : React.CSSProperties = {
   color: "white",
   fontSize: "20px",
   fontWeight: "bold",
 };
 
-const statsSectionStyles = {
+const statsSectionStyles : React.CSSProperties = {
   width: "90%",
   maxWidth: "1000px",
   display: "flex",
@@ -423,14 +423,14 @@ const statsSectionStyles = {
   gap: "20px",
 };
 
-const sectionTitleStyles = {
+const sectionTitleStyles : React.CSSProperties = {
   color: "white",
   fontSize: "24px", // Reduced font size
   margin: "0 0 10px 0",
   textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
 };
 
-const chartsContainerStyles = {
+const chartsContainerStyles : React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "stretch",
@@ -441,7 +441,7 @@ const chartsContainerStyles = {
   marginTop: "30px",
 };
 
-const chartCardStyles = {
+const chartCardStyles : React.CSSProperties = {
   backgroundColor: "rgba(20, 20, 20, 0.8)",
   borderRadius: "10px",
   padding: "15px",
@@ -453,7 +453,7 @@ const chartCardStyles = {
   border: "1px solid rgba(255, 255, 255, 0.1)",
 };
 
-const chartTitleStyles = {
+const chartTitleStyles : React.CSSProperties = {
   color: "rgba(255, 255, 255, 0.9)",
   fontSize: "18px", // Reduced font size
   marginBottom: "10px",

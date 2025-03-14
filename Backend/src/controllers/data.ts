@@ -22,11 +22,11 @@ const get_leaderBoard = async () => {
     }
 };
 
-const fetchData = async () => {
-    const leaderboard = await get_leaderBoard();
-    // console.log(leaderboard);
-};
+// const fetchData = async () => {
+//     const leaderboard = await get_leaderBoard();
+//     console.log(leaderboard);
+// };
 
-fetchData();
+// fetchData();
 
 export { get_leaderBoard };

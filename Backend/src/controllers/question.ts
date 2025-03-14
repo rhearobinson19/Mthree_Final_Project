@@ -31,4 +31,15 @@ const getTopicByTopicId = async (topicId: string) => {
     }
 };
 
+// const fetchData = async (id : string) => {
+//     const leaderboard = await getTopicByTopicId(id);
+//     console.log(leaderboard);
+// };
+
+// fetchData("1");
+// fetchData("2");
+// fetchData("3");
+// fetchData("4");
+// fetchData("5");
+
 export  { getQuestionsByTopicId , getTopicByTopicId};

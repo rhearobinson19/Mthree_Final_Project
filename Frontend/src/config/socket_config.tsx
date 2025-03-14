@@ -134,7 +134,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     
     newSocket.on('connect', () => {
       console.log('Socket connected:', newSocket.id);
-      setSocketId(newSocket.id);
+      setSocketId(newSocket.id ?? null);
       setIsConnected(true);
     });
 
