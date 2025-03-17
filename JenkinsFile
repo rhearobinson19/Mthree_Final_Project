@@ -6,7 +6,7 @@ pipeline {
         BACKEND_IMAGE = "rhearobinson23/quiz-backend:latest"
         FRONTEND_IMAGE = "rhearobinson23/quiz-frontend:latest"
         KUBECONFIG = "$HOME/.kube/config"  // Ensure this is set up on the Jenkins agent
-        GIT_REPO = 'https://github.com/yourusername/your-repo.git'  // Change this to your repo URL
+        GIT_REPO = 'https://github.com/rhearobinson19/Mthree_Final_Project.git'  // Change this to your repo URL
         GIT_BRANCH = 'main'  // Change this if needed
     }
 
