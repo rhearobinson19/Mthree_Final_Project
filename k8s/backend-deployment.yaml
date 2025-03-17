@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: rhearobinson23/quiz-backend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secret
+                  key: DATABASE_URL
+            - name: JSONTOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-secret
+                  key: JSONTOKEN
+
+
