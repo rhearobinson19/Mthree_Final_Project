@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = 'docker-hub-credentials'  // Use stored Jenkins credentials
+        DOCKER_HUB_CREDENTIALS = 'docker-hub-credentials'  
         BACKEND_IMAGE = "rhearobinson23/quiz-backend:latest"
         FRONTEND_IMAGE = "rhearobinson23/quiz-frontend:latest"
-        KUBECONFIG = "$HOME/.kube/config"  // Ensure this is set up on the Jenkins agent
-        GIT_REPO = 'https://github.com/rhearobinson19/Mthree_Final_Project.git'  // Change this to your repo URL
-        GIT_BRANCH = 'main'  // Change this if needed
+        KUBECONFIG = "$HOME/.kube/config"  
+        GIT_REPO = 'https://github.com/rhearobinson19/Mthree_Final_Project.git'  
+        GIT_BRANCH = 'main'  
+        KUBECTL_PATH = "$HOME/bin/kubectl"  // Set a user-writable directory
     }
 
     stages {
@@ -47,15 +48,16 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    if ! command -v kubectl &> /dev/null
-                    then
-                        echo 'kubectl not found, installing...'
+                    mkdir -p $HOME/bin
+                    if [ ! -f "$KUBECTL_PATH" ]; then
+                        echo 'Installing kubectl...'
                         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                         chmod +x kubectl
-                        sudo mv kubectl /usr/local/bin/
+                        mv kubectl $HOME/bin/
                     else
                         echo 'kubectl is already installed'
                     fi
+                    export PATH=$HOME/bin:$PATH
                     '''
                 }
             }
@@ -64,7 +66,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh "kubectl apply -f /var/lib/jenkins/workspace/Quiz-App/k8s/"
+                    sh "$KUBECTL_PATH apply -f /var/lib/jenkins/workspace/Quiz-App/k8s/"
                 }
             }
         }
