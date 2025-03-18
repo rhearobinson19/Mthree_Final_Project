@@ -46,7 +46,7 @@ pipeline {
         stage('Install kubectl') {
             steps {
                 script {
-                    sh """
+                    sh '''
                     if ! command -v kubectl &> /dev/null
                     then
                         echo 'kubectl not found, installing...'
@@ -56,7 +56,7 @@ pipeline {
                     else
                         echo 'kubectl is already installed'
                     fi
-                    """
+                    '''
                 }
             }
         }
