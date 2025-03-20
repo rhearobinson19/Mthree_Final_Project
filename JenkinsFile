@@ -9,7 +9,6 @@ pipeline {
         GIT_REPO = 'https://github.com/rhearobinson19/Mthree_Final_Project.git'  
         GIT_BRANCH = 'main'  
         KUBECTL_PATH = "/var/lib/jenkins/.kube/config"  // Set a user-writable directory
-        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
