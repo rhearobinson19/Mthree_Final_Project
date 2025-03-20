@@ -8,7 +8,8 @@ pipeline {
         KUBECONFIG = "$HOME/.kube/config"  
         GIT_REPO = 'https://github.com/rhearobinson19/Mthree_Final_Project.git'  
         GIT_BRANCH = 'main'  
-        KUBECTL_PATH = "$HOME/bin/kubectl"  // Set a user-writable directory
+        KUBECTL_PATH = "/var/lib/jenkins/.kube/config"  // Set a user-writable directory
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
@@ -57,7 +58,9 @@ pipeline {
                     else
                         echo 'kubectl is already installed'
                     fi
-                    export PATH=$HOME/bin:$PATH
+                     echo "export PATH=$HOME/bin:\$PATH" >> $HOME/.bashrc
+            echo "export PATH=$HOME/bin:\$PATH" >> $HOME/.profile
+            source $HOME/.bashrc
                     '''
                 }
             }
@@ -66,7 +69,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh "$KUBECTL_PATH apply -f /var/lib/jenkins/workspace/Quiz-App/k8s/"
+                   sh '''
+                    export KUBECONFIG=/var/lib/jenkins/.kube/config
+                    kubectl apply -f /var/lib/jenkins/workspace/Quiz-App/k8s/
+                    '''
                 }
             }
         }
