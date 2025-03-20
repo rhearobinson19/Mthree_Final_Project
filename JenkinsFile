@@ -68,7 +68,7 @@ pipeline {
                 script {
                    sh '''
                     export KUBECONFIG=/var/lib/jenkins/.kube/config
-                    kubectl apply -f /var/lib/jenkins/workspace/Quiz-App/k8s/
+                    /usr/local/bin/kubectl apply -f /var/lib/jenkins/workspace/Quiz-App/k8s/
                     '''
                 }
             }
