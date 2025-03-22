@@ -8,7 +8,7 @@ spec:
     app: backend
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 3000
-  type: ClusterIP
-
+      port: 80       # Service Port
+      targetPort: 5000 # Container Port
+      nodePort: 30081 # External Port
+  type: NodePort

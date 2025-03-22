@@ -17,7 +17,7 @@ spec:
         - name: backend
           image: rhearobinson23/quiz-backend:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 5000
           env:
             - name: DATABASE_URL
               valueFrom:

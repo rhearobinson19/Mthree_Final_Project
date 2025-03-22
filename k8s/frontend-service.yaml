@@ -8,7 +8,8 @@ spec:
     app: frontend
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: ClusterIP
+      port: 80       # Service Port
+      targetPort: 80  # Container Port
+      nodePort: 30080 # External Port
+  type: NodePort
 
