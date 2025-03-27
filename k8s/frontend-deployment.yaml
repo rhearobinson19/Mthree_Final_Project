@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
-  namespace: default
+  name: quiz-game-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: quiz-game-frontend
   template:
     metadata:
       labels:
-        app: frontend
+        app: quiz-game-frontend
     spec:
       containers:
-        - name: frontend
-          image: rhearobinson23/quiz-frontend:latest
-          ports:
-            - containerPort: 80
-
+      - name: quiz-game-frontend
+        image: rhearobinson23/quiz-frontend:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: API_URL
+          value: "http://quiz-game-backend:5000"
