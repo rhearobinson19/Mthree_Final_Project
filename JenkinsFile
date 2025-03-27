@@ -15,7 +15,8 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 script {
-                    sh "rm -rf workspace && git clone -b ${GIT_BRANCH} ${GIT_REPO} workspace"
+                    sh "rm -rf workspace"
+                    sh "git clone -b ${GIT_BRANCH} ${GIT_REPO} workspace"
                 }
             }
         }
